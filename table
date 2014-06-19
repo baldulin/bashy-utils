@@ -1,0 +1,51 @@
+#!/bin/bash
+
+rminus(){
+    printf "%$1s" | tr ' ' "$2"
+}
+
+opt_header=0
+while getopts "h" a ; do
+    case $a in
+        "h")
+            opt_header=1
+            ;;
+    esac
+done
+
+fi=$(mktemp)
+cols=$(tee $fi | awk '{for(i=1;i<=NF;i++)if(ar[i]<=length($i))ar[i]=length($i)}END{for(a in ar){ar[a]+=1;print ar[a]}}')
+
+cols=(${cols})
+
+
+header=$(printf "+"
+for i in "${!cols[@]}" ; do
+    printf "-"
+    rminus "${cols[i]}" -
+    printf "+"
+done
+printf "\n")
+
+echo $header
+
+
+cat $fi | \
+while read line ; do
+    i=0
+    printf "|"
+    for a in $line ; do
+        printf " %-${cols[i]}s|" $a
+        let i="i+1"
+    done
+    printf "\n"
+
+    if [ $opt_header -eq 1 ] ; then
+        echo $header
+        opt_header=0
+    fi
+done 
+echo $header 
+rm $fi
+
+
