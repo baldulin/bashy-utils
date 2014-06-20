@@ -2,6 +2,37 @@
 # table -h
 # Creates a little bash table from piped
 
+printhelp(){
+echo """table:
+    This programm will output a table fields are splitted by 
+    spaces rows by newlines.
+
+Usage:
+    table [-STYLE] [-t] [-C CORNERS] [-T TJUNCS] [-H HORIZ] 
+          [-V VERTIC] [-X CROSS]
+
+Parameters:
+    -STYLE      For style use 0,1,2,3,4
+    -C CORNERS  Specify the four corners
+    -T TJUNCS   The four T-Junctions
+    -H HORIZ    Horizontal symbol
+    -V VERTIC   Vertical symbol
+    -X CROSS    The cross symbol
+
+Example:
+    The following command:
+        $ echo -e \"a a\\n b b\" | \\
+        > table -t  -C \"A B C D\"  -X \"X\"  -T \"1 2 3 4\" \\
+        > -H \"-\" -V \"|\"
+    will yield:
+        A---1---B
+        | a | a |
+        4---X---3
+        | b | b |
+        C---2---D
+"""
+}
+
 rminus(){
     printf "%$1s" | sed "s/ /$2/g"
 }
@@ -82,9 +113,9 @@ horizontal="═"
 
 setzero
 
-while getopts "hH:C:V:T:X:01234" a ; do
+while getopts "htH:C:V:T:X:01234" a ; do
     case $a in
-        "h")
+        "t")
             opt_header=1
             ;;
         "H")
@@ -131,6 +162,10 @@ while getopts "hH:C:V:T:X:01234" a ; do
             ;;
         "4")
             setfour
+            ;;
+        "h" | *)
+            printhelp
+            exit
             ;;
     esac
 done
