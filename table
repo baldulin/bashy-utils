@@ -7,11 +7,82 @@ rminus(){
 }
 
 opt_header=0
-vertical="|"
-corner="+"
-horizontal="-"
 
-while getopts "hH:C:V:" a ; do
+setzero(){
+vertical="|"
+corner[0]="+"
+corner[1]="+"
+corner[2]="+"
+corner[3]="+"
+torner[0]="+"
+torner[1]="+"
+torner[2]="+"
+torner[3]="+"
+cross="+"
+horizontal="-"
+}
+
+setone(){
+vertical="┃"
+corner[0]="┏"
+corner[1]="┓"
+corner[2]="┗"
+corner[3]="┛"
+torner[0]="┳"
+torner[1]="┻"
+torner[2]="┫"
+torner[3]="┣"
+cross="╋"
+horizontal="━"
+}
+
+settwo(){
+vertical="│"
+corner[0]="┌"
+corner[1]="┐"
+corner[2]="└"
+corner[3]="┘"
+torner[0]="┬"
+torner[1]="┴"
+torner[2]="┤"
+torner[3]="├"
+cross="┼"
+horizontal="─"
+}
+
+setthree(){
+vertical="│"
+corner[0]="╭"
+corner[1]="╮"
+corner[2]="╰"
+corner[3]="╯"
+torner[0]="┬"
+torner[1]="┴"
+torner[2]="┤"
+torner[3]="├"
+cross="┼"
+horizontal="─"
+}
+
+setfour(){
+vertical="║"
+corner[0]="╔"
+corner[1]="╗"
+corner[2]="╚"
+corner[3]="╝"
+torner[0]="╦"
+torner[1]="╩"
+torner[2]="╣"
+torner[3]="╠"
+cross="╬"
+horizontal="═"
+}
+
+
+
+setzero
+
+while getopts "hH:C:V:T:X:01234" a ; do
     case $a in
         "h")
             opt_header=1
@@ -20,10 +91,46 @@ while getopts "hH:C:V:" a ; do
             horizontal="$OPTARG"
             ;;
         "C")
-            corner="$OPTARG"
+            corner=(${OPTARG// / })
+            
+            if [ "${#corner[@]}" -lt 4 ] ; then
+                corner[0]="$OPTARG"
+                corner[1]="$OPTARG"
+                corner[2]="$OPTARG"
+                corner[3]="$OPTARG"
+            fi
             ;;
         "V")
             vertical="$OPTARG"
+            ;;
+
+        "T")
+            torner=(${OPTARG})
+
+            if [ "${#torner[@]}" -lt 4 ] ; then
+                torner[0]="$OPTARG"
+                torner[1]="$OPTARG"
+                torner[2]="$OPTARG"
+                torner[3]="$OPTARG"
+            fi
+            ;;
+        "X")
+            cross="$OPTARG"
+            ;;
+        "1")
+            setone
+            ;;
+        "0")
+            setzero
+            ;;
+        "2")
+            settwo
+            ;;
+        "3")
+            setthree
+            ;;
+        "4")
+            setfour
             ;;
     esac
 done
@@ -34,16 +141,17 @@ cols=$(tee $fi | awk '{for(i=1;i<=NF;i++)if(ar[i]<=length($i))ar[i]=length($i)}E
 cols=(${cols})
 
 
-header=$(printf "+"
+rheader(){
+printf "$1"
 for i in "${!cols[@]}" ; do
-    printf "$horizontal"
-    rminus "${cols[i]}" "$horizontal"
-    printf "$corner"
+    printf "$4"
+    rminus "${cols[i]}" "$4"
+    printf "$2"
 done
-printf "\n")
+printf "\b$3\n"
+}
 
-echo $header
-
+rheader "${corner[0]}" "${torner[0]}" "${corner[1]}" "$horizontal"
 
 cat $fi | \
 while read line ; do
@@ -56,11 +164,11 @@ while read line ; do
     printf "\n"
 
     if [ $opt_header -eq 1 ] ; then
-        echo $header
+        rheader "${torner[3]}" "${cross}" "${torner[2]}" "$horizontal"
         opt_header=0
     fi
 done 
-echo $header 
+rheader "${corner[2]}" "${torner[1]}" "${corner[3]}" "$horizontal"
 rm $fi
 
 
