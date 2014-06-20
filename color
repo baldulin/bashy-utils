@@ -50,3 +50,21 @@ else
 	C_RED=""
 	C_WHI=""
 fi
+
+# Strips colors from input
+colorstrip(){
+    if [ $# -eq 0 ] ; then
+        sed "s/\x1B\[[^m]*m//g"
+    else
+        echo "$@" | sed "s/\x1B\[[^m]*m//g"
+    fi
+}
+
+# Counts length of strings without colors
+colorcount(){
+    if [ $# -eq 0 ] ; then
+        colorstrip | wc -c
+    else
+        echo "$@" | colorstrip | wc -c
+    fi
+}
