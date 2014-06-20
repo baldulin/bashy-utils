@@ -178,7 +178,7 @@ while getopts "htH:C:V:T:X:01234S:F:" a ; do
 done
 
 fi=$(mktemp)
-cols=$(tee $fi | awk -F "$fieldsep" '{for(i=1;i<=NF;i++)if(ar[i]<=length($i))ar[i]=length($i)}END{for(a in ar){ar[a]+=1;print ar[a]}}')
+cols=$(tee $fi | sed 's/\x1B\[[^m]*m//g' | awk -F "$fieldsep" '{for(i=1;i<=NF;i++)if(ar[i]<=length($i))ar[i]=length($i)}END{for(a in ar){ar[a]+=1;print ar[a]}}')
 
 cols=(${cols})
 
@@ -202,7 +202,10 @@ while read line ; do
 
     echo $line | sed -E "s/[$fieldsep]+/\n/g" | \
     while read a ; do
-        printf " %-${cols[i]}s$vertical" $a
+        printf " $a"
+        let j=${cols[i]}-$(echo $a | sed 's/\x1B\[[^m]*m//g' | wc -c)
+        rminus "$j" " "
+        printf " $vertical"
         let i="i+1"
     done
     printf "\n"
