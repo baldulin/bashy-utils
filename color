@@ -1,0 +1,52 @@
+#!/bin/bash
+# Enable Color support
+if tput colors > /dev/null 2>&1; then
+	# Default Color
+	C_DEF="\e[39m"
+	C_RED="\e[31m"
+	# Green
+	C_GRE="\e[32m"
+	# Yellow
+	C_YEL="\e[33m"
+	# Blue
+	C_BLU="\e[34m"
+	# Magenta
+	C_MAG="\e[35m"
+	# Cyan
+	C_CYA="\e[36m"
+	# Dark Gray
+	C_DGR="\e[90m"
+	
+	# Now all the Light colors
+	# Light Gray
+	C_LGR="\e[37m"
+	# Red
+	C_LRE="\e[91m"
+	# Green
+	C_LGR="\e[92m"
+	# Yellow
+	C_LYE="\e[93m"
+	# Blue
+	C_LBL="\e[94m"
+	# Magenta
+	C_LMA="\e[95m"
+	# Cyan
+	C_LCY="\e[96m"
+	# White
+	C_WHI="\e[97m"
+else	
+	C_BLU=""
+	C_CYA=""
+	C_DEF=""
+	C_DGR=""
+	C_GRE=""
+	C_LBL=""
+	C_LCY=""
+	C_LGR=""
+	C_LMA=""
+	C_LRE=""
+	C_LYE=""
+	C_MAG=""
+	C_RED=""
+	C_WHI=""
+fi
