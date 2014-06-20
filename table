@@ -9,7 +9,7 @@ echo """table:
 
 Usage:
     table [-STYLE] [-t] [-C CORNERS] [-T TJUNCS] [-H HORIZ] 
-          [-V VERTIC] [-X CROSS]
+          [-V VERTIC] [-X CROSS] [-F FIELD]
 
 Parameters:
     -STYLE      For style use 0,1,2,3,4
@@ -18,7 +18,7 @@ Parameters:
     -H HORIZ    Horizontal symbol
     -V VERTIC   Vertical symbol
     -X CROSS    The cross symbol
-
+    -F FIELD    The field seperator for csv \";\"
 Example:
     The following command:
         $ echo -e \"a a\\n b b\" | \\
@@ -38,6 +38,7 @@ rminus(){
 }
 
 opt_header=0
+fieldsep=" "
 
 setzero(){
 vertical="|"
@@ -113,8 +114,14 @@ horizontal="═"
 
 setzero
 
-while getopts "htH:C:V:T:X:01234" a ; do
+while getopts "htH:C:V:T:X:01234S:F:" a ; do
     case $a in
+        "F")
+            fieldsep="$OPTARG"
+            ;;
+        "S")
+            rowsep="$OPTARG"
+            ;;
         "t")
             opt_header=1
             ;;
@@ -171,7 +178,7 @@ while getopts "htH:C:V:T:X:01234" a ; do
 done
 
 fi=$(mktemp)
-cols=$(tee $fi | awk '{for(i=1;i<=NF;i++)if(ar[i]<=length($i))ar[i]=length($i)}END{for(a in ar){ar[a]+=1;print ar[a]}}')
+cols=$(tee $fi | awk -F "$fieldsep" '{for(i=1;i<=NF;i++)if(ar[i]<=length($i))ar[i]=length($i)}END{for(a in ar){ar[a]+=1;print ar[a]}}')
 
 cols=(${cols})
 
@@ -192,7 +199,9 @@ cat $fi | \
 while read line ; do
     i=0
     printf "$vertical"
-    for a in $line ; do
+
+    echo $line | sed -E "s/[$fieldsep]+/\n/g" | \
+    while read a ; do
         printf " %-${cols[i]}s$vertical" $a
         let i="i+1"
     done
