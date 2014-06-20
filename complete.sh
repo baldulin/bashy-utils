@@ -8,7 +8,7 @@ _table()
     # First Command
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="-0 -1 -2 -3 -4 -C -V -H -X -T -h"
+    opts="-0 -1 -2 -3 -4 -C -V -H -X -T -h -t -F"
 
 	case "$prev" in
 	"-T") opts="" ;;
@@ -16,6 +16,8 @@ _table()
     "-C") opts="";;
     "-V") opts="" ;;
     "-H") opts="" ;;
+    "-h") opts="" ;;
+    "-F") opts="" ;;
 	esac
 
 	COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
