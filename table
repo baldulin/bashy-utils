@@ -1,14 +1,29 @@
 #!/bin/bash
+# table -h
+# Creates a little bash table from piped
 
 rminus(){
-    printf "%$1s" | tr ' ' "$2"
+    printf "%$1s" | sed "s/ /$2/g"
 }
 
 opt_header=0
-while getopts "h" a ; do
+vertical="|"
+corner="+"
+horizontal="-"
+
+while getopts "hH:C:V:" a ; do
     case $a in
         "h")
             opt_header=1
+            ;;
+        "H")
+            horizontal="$OPTARG"
+            ;;
+        "C")
+            corner="$OPTARG"
+            ;;
+        "V")
+            vertical="$OPTARG"
             ;;
     esac
 done
@@ -21,9 +36,9 @@ cols=(${cols})
 
 header=$(printf "+"
 for i in "${!cols[@]}" ; do
-    printf "-"
-    rminus "${cols[i]}" -
-    printf "+"
+    printf "$horizontal"
+    rminus "${cols[i]}" "$horizontal"
+    printf "$corner"
 done
 printf "\n")
 
@@ -33,9 +48,9 @@ echo $header
 cat $fi | \
 while read line ; do
     i=0
-    printf "|"
+    printf "$vertical"
     for a in $line ; do
-        printf " %-${cols[i]}s|" $a
+        printf " %-${cols[i]}s$vertical" $a
         let i="i+1"
     done
     printf "\n"
