@@ -196,5 +196,7 @@ END{
         }
     }
     pheader(horizontal, corner[2], torner[1], corner[3])
+
+    system("rm -rf "buffer)
 }
 
