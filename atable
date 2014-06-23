@@ -1,0 +1,200 @@
+#!/bin/gawk -f 
+# Prints out table based on input
+#   FS is used to mark fields
+#   style might be set from 0-4 
+#   title will show a header on 1
+#
+
+BEGIN {
+    columns[1] = 0
+    buffer=mktemp()
+    
+    if(style == "0")
+        setzero()
+    else if(style == "2")
+        settwo()
+    else if(style == "3")
+        setthree()
+    else if(style == "4")
+        setfour()
+    else
+        setone()
+
+    fielde[0]=""
+    fieldb[0]=""
+    fielde[1]=""
+    fieldb[1]=""
+    if(altern == "1"){
+        if(color < 0){
+            color = 31
+        }
+
+        fieldb[1]="\x1B["color"m"
+        fielde[1]="\x1B[0m"
+    }
+    else if(color > 0){
+        setcolor(color)
+    }
+
+}
+
+function setcolor(c){
+    vertical="\x1B["c"m"vertical"\x1B[0m"
+    corner[0]="\x1B["c"m"corner[0]"\x1B[0m"
+    corner[1]="\x1B["c"m"corner[1]"\x1B[0m"
+    corner[2]="\x1B["c"m"corner[2]"\x1B[0m"
+    corner[3]="\x1B["c"m"corner[3]"\x1B[0m"
+    torner[0]="\x1B["c"m"torner[0]"\x1B[0m"
+    torner[1]="\x1B["c"m"torner[1]"\x1B[0m"
+    torner[2]="\x1B["c"m"torner[2]"\x1B[0m"
+    torner[3]="\x1B["c"m"torner[3]"\x1B[0m"
+    cross="\x1B["c"m"cross"\x1B[0m"
+    horizontal="\x1B["c"m"horizontal"\x1B[0m"
+}
+
+function setzero(){
+    vertical="|"
+    corner[0]="+"
+    corner[1]="+"
+    corner[2]="+"
+    corner[3]="+"
+    torner[0]="+"
+    torner[1]="+"
+    torner[2]="+"
+    torner[3]="+"
+    cross="+"
+    horizontal="-"
+}
+
+function setone(){
+    vertical="┃"
+    corner[0]="┏"
+    corner[1]="┓"
+    corner[2]="┗"
+    corner[3]="┛"
+    torner[0]="┳"
+    torner[1]="┻"
+    torner[2]="┫"
+    torner[3]="┣"
+    cross="╋"
+    horizontal="━"
+}
+
+function settwo(){
+    vertical="│"
+    corner[0]="┌"
+    corner[1]="┐"
+    corner[2]="└"
+    corner[3]="┘"
+    torner[0]="┬"
+    torner[1]="┴"
+    torner[2]="┤"
+    torner[3]="├"
+    cross="┼"
+    horizontal="─"
+}
+
+function setthree(){
+    vertical="│"
+    corner[0]="╭"
+    corner[1]="╮"
+    corner[2]="╰"
+    corner[3]="╯"
+    torner[0]="┬"
+    torner[1]="┴"
+    torner[2]="┤"
+    torner[3]="├"
+    cross="┼"
+    horizontal="─"
+}
+
+function setfour(){
+    vertical="║"
+    corner[0]="╔"
+    corner[1]="╗"
+    corner[2]="╚"
+    corner[3]="╝"
+    torner[0]="╦"
+    torner[1]="╩"
+    torner[2]="╣"
+    torner[3]="╠"
+    cross="╬"
+    horizontal="═"
+}
+
+function mktemp(){
+    "mktemp" |& getline result
+    return result
+}
+
+function repeat(n,c,      i){
+    for(i=0;i<n;i++){
+        printf c 
+    }
+}
+
+function colorcount(str){
+    gsub("\x1B\\[[^m]*m", "", str)
+    return length(str)
+}
+
+{
+    # Count Columns
+    for(i=1;i<=NF;i++){
+        cc = colorcount($i)
+        if(columns[i] < cc){
+            columns[i] = cc
+        }
+    }
+
+    print $0 >> buffer
+}
+
+function pline(){
+    printf "%s%s", fieldb[alt], vertical
+    for(i in columns){
+        str = $i
+        cc = columns[i] - colorcount(str)
+        if(alt == 1){
+            gsub("\x1B\\[0*m","\x1B[0m"fieldb[alt], str)
+        }
+        printf " %s", str
+        repeat(cc, " ")
+        printf "%s %s", fieldb[alt], vertical
+    }
+    printf "%s\n", fielde[alt]
+}
+
+function pheader(h, l, m, r){
+    printf l
+    for(i in columns){
+        repeat(columns[i]+2,h)
+        printf m
+    }
+    printf "\b"r"\n"
+}
+
+END{
+    close(buffer)
+
+    pheader(horizontal, corner[0], torner[0], corner[1])
+    if(title == 1){
+        if((getline < buffer) > 0){
+            pline()
+        }
+        pheader(horizontal, torner[3], cross, torner[2])
+    }
+
+    alt = 0
+    while((getline < buffer) > 0){
+        pline()
+        if(alt == 0){
+            alt = 1
+        }
+        else{
+            alt = 0
+        }
+    }
+    pheader(horizontal, corner[2], torner[1], corner[3])
+}
+
