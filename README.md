@@ -3,7 +3,8 @@
 This set of little scripts aims to simplify a lot bash tasks.
 
 ## Content:
-* table Creates a table from input
+* atable Creates a table from input with awk
+* table Creates a table from input [Deprecated]
 * complete.sh Basic Bash Completion for all scripts
 
 ## Usage:
