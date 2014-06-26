@@ -8,7 +8,8 @@
 BEGIN {
     columns[1] = 0
     buffer=mktemp()
-    
+    column_max=1
+
     if(style == "0")
         setzero()
     else if(style == "2")
@@ -147,12 +148,15 @@ function colorcount(str){
         }
     }
 
+    if(NF > column_max)
+        column_max = NF
+
     print $0 >> buffer
 }
 
 function pline(){
     printf "%s%s", fieldb[alt], vertical
-    for(i in columns){
+    for(i=1;i<=column_max;i++){
         str = $i
         cc = columns[i] - colorcount(str)
         if(alt == 1){
@@ -167,7 +171,7 @@ function pline(){
 
 function pheader(h, l, m, r){
     printf l
-    for(i in columns){
+    for(i=1;i<=column_max;i++){
         repeat(columns[i]+2,h)
         printf m
     }
